@@ -654,6 +654,13 @@ void NonFragmentingChildOf_remove_ordered_children_trait_w_deleted_children(void
 void NonFragmentingChildOf_remove_ordered_children_trait_w_deleted_children_reverse(void);
 void NonFragmentingChildOf_get_parent(void);
 void NonFragmentingChildOf_get_target(void);
+void NonFragmentingChildOf_table_child_count(void);
+void NonFragmentingChildOf_table_child_count_set_parent_after_tag(void);
+void NonFragmentingChildOf_table_child_count_after_add(void);
+void NonFragmentingChildOf_table_child_count_after_remove(void);
+void NonFragmentingChildOf_table_child_count_after_remove_all(void);
+void NonFragmentingChildOf_table_child_count_after_clear(void);
+void NonFragmentingChildOf_table_child_count_after_delete(void);
 
 // Testsuite 'Hierarchies'
 void Hierarchies_setup(void);
@@ -5242,6 +5249,34 @@ bake_test_case NonFragmentingChildOf_testcases[] = {
     {
         "get_target",
         NonFragmentingChildOf_get_target
+    },
+    {
+        "table_child_count",
+        NonFragmentingChildOf_table_child_count
+    },
+    {
+        "table_child_count_set_parent_after_tag",
+        NonFragmentingChildOf_table_child_count_set_parent_after_tag
+    },
+    {
+        "table_child_count_after_add",
+        NonFragmentingChildOf_table_child_count_after_add
+    },
+    {
+        "table_child_count_after_remove",
+        NonFragmentingChildOf_table_child_count_after_remove
+    },
+    {
+        "table_child_count_after_remove_all",
+        NonFragmentingChildOf_table_child_count_after_remove_all
+    },
+    {
+        "table_child_count_after_clear",
+        NonFragmentingChildOf_table_child_count_after_clear
+    },
+    {
+        "table_child_count_after_delete",
+        NonFragmentingChildOf_table_child_count_after_delete
     }
 };
 
@@ -13410,7 +13445,7 @@ static bake_test_suite suites[] = {
         "NonFragmentingChildOf",
         NULL,
         NULL,
-        25,
+        32,
         NonFragmentingChildOf_testcases
     },
     {

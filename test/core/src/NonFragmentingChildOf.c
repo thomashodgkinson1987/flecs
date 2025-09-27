@@ -743,3 +743,266 @@ void NonFragmentingChildOf_get_target(void) {
 
     ecs_fini(world);
 }
+
+void NonFragmentingChildOf_table_child_count(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_insert(world, ecs_value(EcsParent, {p}));
+    ecs_table_t *table = ecs_get_table(world, c);
+    test_assert(table != NULL);
+
+    const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table);
+    test_assert(pr != NULL);
+    test_uint(pr->first_entity, c);
+    test_int(pr->count, 1);
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_set_parent_after_tag(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_new_w_id(world, Foo);
+
+    {
+        ecs_table_t *table = ecs_get_table(world, c);
+        test_assert(table != NULL);
+
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table);
+        test_assert(pr == NULL);
+    }
+
+    ecs_set(world, c, EcsParent, {p});
+
+    {
+        ecs_table_t *table = ecs_get_table(world, c);
+        test_assert(table != NULL);
+
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_after_add(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_insert(world, ecs_value(EcsParent, {p}));
+    ecs_table_t *table_a = ecs_get_table(world, c);
+    test_assert(table_a != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_add(world, c, Foo);
+
+    ecs_table_t *table_b = ecs_get_table(world, c);
+    test_assert(table_b != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr == NULL);
+    }
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_b);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_after_remove(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_new_w(world, Foo);
+    ecs_set(world, c, EcsParent, {p});
+    ecs_table_t *table_a = ecs_get_table(world, c);
+    test_assert(table_a != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_remove(world, c, Foo);
+    test_assert(!ecs_has(world, c, Foo));
+
+    ecs_table_t *table_b = ecs_get_table(world, c);
+    test_assert(table_b != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr == NULL);
+    }
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_b);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_after_remove_all(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_new_w(world, Foo);
+    ecs_set(world, c, EcsParent, {p});
+    ecs_table_t *table_a = ecs_get_table(world, c);
+    test_assert(table_a != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_remove_all(world, Foo);
+    test_assert(!ecs_has(world, c, Foo));
+
+    ecs_table_t *table_b = ecs_get_table(world, c);
+    test_assert(table_b != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr == NULL);
+    }
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_b);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_after_clear(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_new_w(world, Foo);
+    ecs_set(world, c, EcsParent, {p});
+    ecs_table_t *table_a = ecs_get_table(world, c);
+    test_assert(table_a != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_clear(world, c);
+
+    ecs_table_t *table_b = ecs_get_table(world, c);
+    test_assert(table_b != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr == NULL);
+    }
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_b);
+        test_assert(pr == NULL);
+    }
+
+    ecs_fini(world);
+}
+
+void NonFragmentingChildOf_table_child_count_after_delete(void) {
+    ecs_world_t *world = ecs_mini();
+
+    ECS_TAG(world, Foo);
+
+    ecs_entity_t p = ecs_new_w_id(world, EcsOrderedChildren);
+    const ecs_component_record_t *cr = flecs_components_get(world, ecs_childof(p));
+    test_assert(cr != NULL);
+
+    ecs_entity_t c = ecs_new(world);
+    ecs_table_t *root = ecs_get_table(world, c);
+
+    ecs_set(world, c, EcsParent, {p});
+    ecs_table_t *table_a = ecs_get_table(world, c);
+    test_assert(table_a != NULL);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr != NULL);
+
+        test_uint(pr->first_entity, c);
+        test_int(pr->count, 1);
+    }
+
+    ecs_delete(world, c);
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, table_a);
+        test_assert(pr == NULL);
+    }
+
+    {
+        const ecs_parent_record_t *pr = flecs_component_get_parent_record(cr, root);
+        test_assert(pr == NULL);
+    }
+
+    ecs_fini(world);
+}
